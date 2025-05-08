@@ -29,6 +29,8 @@ import models.fcmae as fcmae
 import utils
 from utils import NativeScalerWithGradNormCount as NativeScaler
 from utils import str2bool
+from wsi_dataset_txt import WsiDatasetTxt
+
 
 def get_args_parser():
     parser = argparse.ArgumentParser('FCMAE pre-training', add_help=False)
@@ -111,6 +113,8 @@ def main(args):
     np.random.seed(seed)
     
     cudnn.benchmark = True
+
+    txt_file_for_train = "/mnt/rj200t/img_names/train.txt"
     
     # simple augmentation
     transform_train = transforms.Compose([
@@ -118,8 +122,13 @@ def main(args):
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
-    dataset_train = datasets.ImageFolder(os.path.join(args.data_path, 'train'), transform=transform_train)
-    print(dataset_train)
+    
+    dataset_train = WsiDatasetTxt(
+        txt_file_path=txt_file_for_train,
+        transform=transform_train,
+        data_root=None
+    )
+    print(f"WsiDataset initialized. Number of samples: {len(dataset_train)}")
 
     num_tasks = utils.get_world_size()
     global_rank = utils.get_rank()
