@@ -99,6 +99,8 @@ def get_args_parser():
     parser.add_argument('--dist_on_itp', type=str2bool, default=False)
     parser.add_argument('--dist_url', default='env://',
                         help='url used to set up distributed training')
+    parser.add_argument('--txt_file_for_train', type=str, default=None,
+                        help='Path to the text file listing training image paths (for WsiDatasetTxt).')
     return parser
 
 def main(args):
@@ -113,8 +115,6 @@ def main(args):
     np.random.seed(seed)
     
     cudnn.benchmark = True
-
-    txt_file_for_train = "/mnt/rj200t/img_names/train.txt"
     
     # simple augmentation
     transform_train = transforms.Compose([
@@ -124,7 +124,7 @@ def main(args):
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
     
     dataset_train = WsiDatasetTxt(
-        txt_file_path=txt_file_for_train,
+        txt_file_path=args.txt_file_for_train,
         transform=transform_train,
         data_root=None
     )
